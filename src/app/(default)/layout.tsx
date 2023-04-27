@@ -7,7 +7,7 @@ interface Props {
 
 export default function MainLayout({ children }: Props) {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="h-screen">
       <Header />
       {children}
     </main>

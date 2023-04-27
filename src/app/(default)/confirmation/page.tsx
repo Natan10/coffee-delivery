@@ -1,3 +1,7 @@
-export default function Confirmation() {
-  return <h1>Confirmation</h1>;
+"use client";
+
+import { Confirmation } from "@/pages/Confirmation";
+
+export default function ConfirmationPage() {
+  return <Confirmation />;
 }
