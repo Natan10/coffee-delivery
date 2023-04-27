@@ -9,7 +9,7 @@ import logo from "@/assets/logo.png";
 
 export function Header() {
   return (
-    <nav className="max-w-6xl mx-auto py-8 flex justify-between">
+    <nav className="w-full max-w-6xl mx-auto px-3 py-8 flex justify-between">
       <Image src={logo} alt="logo" className="w-[85px] h-[40px]" />
 
       <div className="flex items-center gap-3">
