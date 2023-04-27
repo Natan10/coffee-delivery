@@ -4,9 +4,9 @@ import Image from "next/image";
 
 import { Banner } from "./components/Banner";
 import { Header } from "./components/Header";
-import colors from "../../global/colors";
 
-import tradicional from "../../../assets/card-coffee/Americano.svg";
+import colors from "@/global/colors";
+import tradicional from "@/assets/card-coffee/Americano.svg";
 
 export function Home() {
   return (

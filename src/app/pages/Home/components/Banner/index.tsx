@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Coffee, Package, ShoppingCart, Timer } from "@phosphor-icons/react";
 
-import cupCoffee from "../../../../../assets/cup-coffee.png";
+import cupCoffee from "@/assets/cup-coffee.png";
 
 export function Banner() {
   return (

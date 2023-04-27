@@ -4,8 +4,8 @@
 import Image from "next/image";
 import { MapPin, ShoppingCart } from "@phosphor-icons/react";
 
-import colors from "../../../../global/colors";
-import logo from "../../../../../assets/logo.png";
+import colors from "@/global/colors";
+import logo from "@/assets/logo.png";
 
 export function Header() {
   return (
