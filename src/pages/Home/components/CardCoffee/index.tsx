@@ -4,6 +4,7 @@ import { Minus, Plus, ShoppingCart } from "@phosphor-icons/react";
 import colors from "@/global/colors";
 
 import tradicional from "@/assets/card-coffee/Americano.svg";
+import { IncreaseButton } from "@/components/IncreaseButton";
 
 export function CardCoffee() {
   return (
@@ -47,15 +48,7 @@ export function CardCoffee() {
         </span>
 
         <div className="flex items-center gap-2">
-          <div className="p-1 flex items-center gap-2 rounded-md bg-base-button">
-            <button>
-              <Minus size={12} color={colors["purple-dark"]} />
-            </button>
-            <span className="text-base text-base-title">2</span>
-            <button>
-              <Plus size={12} color={colors["purple-dark"]} />
-            </button>
-          </div>
+          <IncreaseButton />
           <button className="rounded-md bg-purple-dark hover:bg-purple-mid disabled:bg-base-label p-2 relative ">
             <ShoppingCart size={16} weight="fill" color={"#FAFAFA"} />
           </button>
