@@ -10,12 +10,28 @@ import {
 import { Input } from "@/components/Input";
 import { IconButton } from "@/components/IconButton";
 import { CheckoutCoffeeCard } from "./components/CheckoutCoffeeCard";
+import { useCoffeeStore } from "@/store/coffeeStore";
 import colors from "@/global/colors";
+import { formatCurrency } from "../utils/formatCurrency";
+
+const DELIVERY_COST = 3.5;
 
 export function Checkout() {
+  const data = useCoffeeStore((state) => state.cart);
+  const { removeCoffeeFromCart } = useCoffeeStore();
+
   const [paymentType, setPaymentType] = useState<
     "cash" | "creditCard" | "debitCard"
   >("cash");
+
+  function handleRemoveCoffeeFromCart(id: number) {
+    removeCoffeeFromCart(id);
+  }
+
+  const totalItems = data.reduce((prev, current) => {
+    return (prev += current.price * current.qtd);
+  }, 0);
+
   return (
     <section className="mt-10 max-w-6xl px-3 pb-20 mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,448px)] gap-8">
@@ -118,18 +134,29 @@ export function Checkout() {
 
           <div className="mt-3 bg-base-card p-6 md:p-10 rounded rounded-tr-[44px] rounded-bl-[44px]">
             <div className="flex flex-col">
-              <CheckoutCoffeeCard />
-              <CheckoutCoffeeCard />
+              {data.map((coffee) => {
+                return (
+                  <CheckoutCoffeeCard
+                    key={coffee.id}
+                    data={coffee}
+                    removeFromCart={handleRemoveCoffeeFromCart}
+                  />
+                );
+              })}
             </div>
 
             <div className="mt-6 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-base-text text-sm">Total de itens</span>
-                <span className="text-base-text text-base">R$ 29.70</span>
+                <span className="text-base-text text-base">
+                  {formatCurrency({ value: totalItems })}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-base-text text-sm">Entrega</span>
-                <span className="text-base-text text-base">R$ 3.50</span>
+                <span className="text-base-text text-base">
+                  {formatCurrency({ value: DELIVERY_COST })}
+                </span>
               </div>
 
               <div className="flex justify-between items-center">
@@ -137,11 +164,14 @@ export function Checkout() {
                   Total
                 </span>
                 <span className="text-base-subtitle font-bold text-lg">
-                  R$ 33.20
+                  {formatCurrency({ value: totalItems + DELIVERY_COST })}
                 </span>
               </div>
             </div>
-            <button className="mt-6 w-full p-3 rounded text-center font-bold text-sm uppercase text-white bg-yellow-mid hover:bg-yellow-dark">
+            <button
+              disabled={!data.length}
+              className="mt-6 w-full p-3 rounded text-center font-bold text-sm uppercase text-white bg-yellow-mid hover:bg-yellow-dark disabled:bg-base-text"
+            >
               Confirmar Pedido
             </button>
           </div>
