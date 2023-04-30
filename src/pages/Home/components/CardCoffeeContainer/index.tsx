@@ -1,11 +1,8 @@
-import { CoffeeModel } from "@/domain/models/coffee";
 import { CardCoffee } from "../CardCoffee";
+import { useCoffeeStore } from "@/store/coffeeStore";
 
-interface CardCoffeeContainerProps {
-  data: CoffeeModel[];
-}
-
-export function CardCoffeeContainer({ data }: CardCoffeeContainerProps) {
+export function CardCoffeeContainer() {
+  const data = useCoffeeStore((s) => s.coffees);
   return (
     <section className="h-full max-w-6xl mx-auto mt-8 px-3 py-8">
       <h2 className="font-baloo font-extrabold text-[32px] text-base-subtitle">

@@ -1,18 +1,37 @@
+import { useCallback, useState } from "react";
 import Image from "next/image";
 import { ShoppingCart } from "@phosphor-icons/react";
 
 import { IncreaseButton } from "@/components/IncreaseButton";
 import { CoffeeModel } from "@/domain/models/coffee";
 import { imageCoffeeMapper } from "@/mappers/coffeeImageMapper";
-
+import { useCoffeeStore } from "@/store/coffeeStore";
 interface CardCoffeeProps {
   data: CoffeeModel;
 }
 
 export function CardCoffee({
-  data: { name, price, qtd, description, types },
+  data: { id, name, price, qtd, description, types },
 }: CardCoffeeProps) {
+  const { addCoffeeToCart, updateCoffeeState } = useCoffeeStore();
+
+  const [quantity, setQuantity] = useState(qtd);
+
   const coffeeImage = imageCoffeeMapper.get(name);
+
+  const handleAddCoffee = useCallback(() => {
+    addCoffeeToCart({
+      id,
+      name,
+      price,
+      qtd: quantity,
+    });
+    updateCoffeeState(id, quantity);
+    setQuantity((old) => qtd - old);
+  }, [quantity]);
+
+  const add = () => setQuantity((old) => old + 1);
+  const remove = () => setQuantity((old) => old - 1);
 
   return (
     <div
@@ -57,10 +76,19 @@ export function CardCoffee({
         </span>
 
         <div className="flex items-center gap-2">
-          {qtd > 0 && <IncreaseButton />}
+          {qtd > 0 && (
+            <IncreaseButton
+              add={() => add()}
+              remove={() => remove()}
+              count={quantity}
+              isDisabledAdd={quantity === qtd}
+              isDisabledRemove={quantity === 1}
+            />
+          )}
           <button
             disabled={qtd === 0}
-            className="rounded-md bg-purple-dark hover:bg-purple-mid disabled:bg-base-label p-2 relative "
+            className="rounded-md bg-purple-dark hover:bg-purple-mid disabled:bg-base-label p-2 relative"
+            onClick={handleAddCoffee}
           >
             <ShoppingCart size={16} weight="fill" color={"#FAFAFA"} />
           </button>
