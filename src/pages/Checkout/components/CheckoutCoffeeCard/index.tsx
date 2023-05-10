@@ -6,6 +6,7 @@ import { CartData, useCoffeeStore } from "@/store/coffeeStore";
 import { IconButton } from "@/components/IconButton";
 import { IncreaseButton } from "@/components/IncreaseButton";
 import { imageCoffeeMapper } from "@/mappers/coffeeImageMapper";
+import { formatCurrency } from "@/pages/utils/formatCurrency";
 import colors from "@/global/colors";
 
 interface CheckoutCoffeeCardProps {
@@ -74,10 +75,7 @@ export function CheckoutCoffeeCard({
           </div>
         </div>
         <span className="ml-auto font-bold text-base text-base-text">
-          {data.price.toLocaleString("pt-br", {
-            style: "currency",
-            currency: "BRL",
-          })}
+          {formatCurrency({ value: data.price })}
         </span>
       </div>
     </div>

@@ -1,28 +1,32 @@
 import { useState } from "react";
-import {
-  Bank,
-  CreditCard,
-  CurrencyDollar,
-  MapPinLine,
-  Money,
-} from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-import { Input } from "@/components/Input";
-import { IconButton } from "@/components/IconButton";
-import { CheckoutCoffeeCard } from "./components/CheckoutCoffeeCard";
 import { useCoffeeStore } from "@/store/coffeeStore";
-import colors from "@/global/colors";
 import { formatCurrency } from "../utils/formatCurrency";
+import { CheckoutCoffeeCard } from "./components/CheckoutCoffeeCard";
+import { CheckoutForm, PaymentMethod } from "./components/CheckoutForm";
+import { checkoutFormValidationSchema } from "./validation/checkoutFormValidationSchema";
+import { CoffeeLoad } from "@/components/CoffeeLoad";
+
+type CheckoutFormType = z.infer<typeof checkoutFormValidationSchema>;
 
 const DELIVERY_COST = 3.5;
 
 export function Checkout() {
+  const router = useRouter();
+  const methods = useForm<CheckoutFormType>({
+    defaultValues: {
+      paymentMethod: PaymentMethod.cash,
+    },
+    resolver: zodResolver(checkoutFormValidationSchema),
+  });
   const data = useCoffeeStore((state) => state.cart);
+  const [isSendingData, setIsSendingData] = useState(false);
   const { removeCoffeeFromCart } = useCoffeeStore();
-
-  const [paymentType, setPaymentType] = useState<
-    "cash" | "creditCard" | "debitCard"
-  >("cash");
+  const { handleSubmit } = methods;
 
   function handleRemoveCoffeeFromCart(id: number) {
     removeCoffeeFromCart(id);
@@ -32,151 +36,84 @@ export function Checkout() {
     return (prev += current.price * current.qtd);
   }, 0);
 
+  async function onSubmit(data: any) {
+    setIsSendingData(true);
+
+    setTimeout(() => {
+      router.push("/confirmation");
+      useCoffeeStore.setState({
+        cart: [],
+      });
+    }, 3000);
+  }
   return (
-    <section className="mt-10 max-w-6xl px-3 pb-20 mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,448px)] gap-8">
-        {/* form */}
-        <div>
-          <h3 className="font-baloo font-bold text-lg text-base-subtitle">
-            Complete seu pedido
-          </h3>
-
-          {/* form fields */}
-          <div>
-            <div className="mt-3 bg-base-card p-6 md:p-10 rounded">
-              <div className="flex gap-2">
-                <MapPinLine
-                  size={20}
-                  className="mt-1"
-                  color={colors["yellow-dark"]}
-                />
-                <div>
-                  <p className="text-base-subtitle text-base font-roboto">
-                    Endereço de Entrega
-                  </p>
-                  <p className="text-base-text text-sm">
-                    Informe o endereço onde deseja receber seu pedido
-                  </p>
-                </div>
-              </div>
-              <div className="mt-8 flex flex-col gap-4">
-                <Input placeholder="CEP" required />
-                <Input placeholder="Rua" required />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Input placeholder="Número" />
-                  <Input
-                    placeholder="Complemento"
-                    customStyles="flex-1"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_80px] gap-3">
-                  <Input placeholder="Bairro" customStyles="flex-1" required />
-                  <Input placeholder="Cidade" customStyles="flex-1" />
-                  <Input placeholder="UF" customStyles="flex-shrink" required />
-                </div>
-              </div>
+    <FormProvider {...methods}>
+      <section className="relative mt-10 max-w-6xl px-3 pb-20 mx-auto">
+        {isSendingData && <CoffeeLoad />}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,448px)] gap-8">
+            <div>
+              <h3 className="font-baloo font-bold text-lg text-base-subtitle">
+                Complete seu pedido
+              </h3>
+              <CheckoutForm />
             </div>
 
-            <div className="mt-3 bg-base-card p-10 rounded">
-              <div className="flex gap-2">
-                <CurrencyDollar
-                  size={20}
-                  className="mt-1"
-                  color={colors["purple-dark"]}
-                />
-                <div>
-                  <p className="text-base-subtitle text-base font-roboto">
-                    Pagamento
-                  </p>
-                  <p className="text-base-text text-sm">
-                    O pagamento é feito na entrega. Escolha a forma que deseja
-                    pagar
-                  </p>
+            <div>
+              <h3 className="font-baloo font-bold text-lg text-base-subtitle">
+                Cafés selecionados
+              </h3>
+
+              <div className="mt-3 bg-base-card p-6 md:p-10 rounded rounded-tr-[44px] rounded-bl-[44px]">
+                <div className="flex flex-col">
+                  {data.map((coffee) => {
+                    return (
+                      <CheckoutCoffeeCard
+                        key={coffee.id}
+                        data={coffee}
+                        removeFromCart={handleRemoveCoffeeFromCart}
+                      />
+                    );
+                  })}
                 </div>
-              </div>
 
-              <div className="mt-8 flex flex-col md:flex-row md:items-center gap-3">
-                <IconButton
-                  icon={<CreditCard size={18} color={colors["purple-dark"]} />}
-                  label="Cartão de crédito"
-                  active={paymentType === "creditCard"}
-                  customStyles="p-4"
-                  onClick={() => setPaymentType("creditCard")}
-                />
-                <IconButton
-                  icon={<Bank size={18} color={colors["purple-dark"]} />}
-                  label="Cartão de débito"
-                  active={paymentType === "debitCard"}
-                  customStyles="p-4"
-                  onClick={() => setPaymentType("debitCard")}
-                />
+                <div className="mt-6 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-base-text text-sm">
+                      Total de itens
+                    </span>
+                    <span className="text-base-text text-base">
+                      {formatCurrency({ value: totalItems })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-base-text text-sm">Entrega</span>
+                    <span className="text-base-text text-base">
+                      {formatCurrency({ value: DELIVERY_COST })}
+                    </span>
+                  </div>
 
-                <IconButton
-                  icon={<Money size={18} color={colors["purple-dark"]} />}
-                  label="Dinheiro"
-                  active={paymentType === "cash"}
-                  customStyles="p-4"
-                  onClick={() => setPaymentType("cash")}
-                />
+                  <div className="flex justify-between items-center">
+                    <span className="text-base-subtitle font-bold text-lg">
+                      Total
+                    </span>
+                    <span className="text-base-subtitle font-bold text-lg">
+                      {formatCurrency({ value: totalItems + DELIVERY_COST })}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={!data.length}
+                  className="mt-6 w-full p-3 rounded text-center font-bold text-sm uppercase text-white bg-yellow-mid hover:bg-yellow-dark disabled:bg-base-text"
+                >
+                  Confirmar Pedido
+                </button>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* coffees */}
-        <div>
-          <h3 className="font-baloo font-bold text-lg text-base-subtitle">
-            Cafés selecionados
-          </h3>
-
-          <div className="mt-3 bg-base-card p-6 md:p-10 rounded rounded-tr-[44px] rounded-bl-[44px]">
-            <div className="flex flex-col">
-              {data.map((coffee) => {
-                return (
-                  <CheckoutCoffeeCard
-                    key={coffee.id}
-                    data={coffee}
-                    removeFromCart={handleRemoveCoffeeFromCart}
-                  />
-                );
-              })}
-            </div>
-
-            <div className="mt-6 space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-base-text text-sm">Total de itens</span>
-                <span className="text-base-text text-base">
-                  {formatCurrency({ value: totalItems })}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-base-text text-sm">Entrega</span>
-                <span className="text-base-text text-base">
-                  {formatCurrency({ value: DELIVERY_COST })}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="text-base-subtitle font-bold text-lg">
-                  Total
-                </span>
-                <span className="text-base-subtitle font-bold text-lg">
-                  {formatCurrency({ value: totalItems + DELIVERY_COST })}
-                </span>
-              </div>
-            </div>
-            <button
-              disabled={!data.length}
-              className="mt-6 w-full p-3 rounded text-center font-bold text-sm uppercase text-white bg-yellow-mid hover:bg-yellow-dark disabled:bg-base-text"
-            >
-              Confirmar Pedido
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
+        </form>
+      </section>
+    </FormProvider>
   );
 }
