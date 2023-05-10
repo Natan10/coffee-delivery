@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, FormProvider } from "react-hook-form";
@@ -38,13 +40,11 @@ export function Checkout() {
 
   async function onSubmit(data: any) {
     setIsSendingData(true);
-
-    setTimeout(() => {
-      router.push("/confirmation");
-      useCoffeeStore.setState({
-        cart: [],
-      });
-    }, 3000);
+    router.push("/confirmation");
+    useCoffeeStore.setState({
+      cart: [],
+    });
+    setIsSendingData(false);
   }
   return (
     <FormProvider {...methods}>

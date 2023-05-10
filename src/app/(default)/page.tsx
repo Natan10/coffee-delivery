@@ -4,6 +4,5 @@ import { prisma } from "@/services/prisma";
 
 export default async function Main() {
   const data = (await prisma.coffee.findMany()) as CoffeeModel[];
-
   return <Home data={data} />;
 }

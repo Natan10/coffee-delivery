@@ -14,8 +14,10 @@ export function Home({ data }: HomeProps) {
   const coffeeStore = useCoffeeStore();
 
   useEffect(() => {
-    coffeeStore.addCoffees(data);
-  }, []);
+    if (!coffeeStore.coffees.length) {
+      coffeeStore.addCoffees(data);
+    }
+  }, [data]);
 
   return (
     <section className="pb-36">

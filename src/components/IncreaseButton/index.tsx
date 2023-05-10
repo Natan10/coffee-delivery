@@ -19,14 +19,14 @@ export function IncreaseButton({
 }: IncreaseButtonProps) {
   return (
     <div className="p-1 flex items-center gap-2 rounded-md bg-base-button">
-      <button onClick={remove} disabled={isDisabledRemove}>
+      <button type="button" onClick={remove} disabled={isDisabledRemove}>
         <Minus
           size={12}
           color={isDisabledRemove ? colors["base-text"] : colors["purple-dark"]}
         />
       </button>
       <span className="text-base text-base-title">{count}</span>
-      <button onClick={add} disabled={isDisabledAdd}>
+      <button type="button" onClick={add} disabled={isDisabledAdd}>
         <Plus
           size={12}
           color={isDisabledAdd ? colors["base-text"] : colors["purple-dark"]}
